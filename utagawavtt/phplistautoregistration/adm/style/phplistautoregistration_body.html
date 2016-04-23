@@ -1,0 +1,73 @@
+<!-- INCLUDE overall_header.html -->
+
+<h1>{L_SETTINGS}</h1>
+
+<div class="errorbox notice">
+    <p style="text-align: left;">{L_ACP_PHPLISTAUTOREGISTRATION_WARNING}</p>
+</div>
+
+<form id="acp_board" method="post" action="{U_ACTION}">
+	<fieldset>
+        <legend>{L_ACP_PHPLISTAUTOREGISTRATION_API_CONNECTION}</legend>
+
+		<dl>
+			<dt>
+                <label for="utagawavtt_phplistautoregistration_apiUrl">{L_ACP_PHPLISTAUTOREGISTRATION_APIURL}</label>
+                <br /><span>{L_ACP_PHPLISTAUTOREGISTRATION_APIURL_DESC}</span>
+            </dt>
+			<dd><input type="text" class="text" name="utagawavtt_phplistautoregistration_apiUrl" size="80" value="{UTAGAWAVTT_PHPLISTAUTOREGISTRATION_APIURL}"/></dd>
+		</dl>
+		<dl>
+			<dt>
+                <label for="utagawavtt_phplistautoregistration_login">{L_ACP_PHPLISTAUTOREGISTRATION_LOGIN}</label>
+                <br /><span>{L_ACP_PHPLISTAUTOREGISTRATION_LOGIN_DESC}</span>
+            </dt>
+			<dd><input type="text" class="text" name="utagawavtt_phplistautoregistration_login" value="{UTAGAWAVTT_PHPLISTAUTOREGISTRATION_LOGIN}"/></dd>
+		</dl>
+		<dl>
+			<dt>
+                <label for="utagawavtt_phplistautoregistration_password">{L_ACP_PHPLISTAUTOREGISTRATION_PASSWORD}</label>
+                <br /><span>{L_ACP_PHPLISTAUTOREGISTRATION_PASSWORD_DESC}</span>
+            </dt>
+			<dd><input type="text" class="text" name="utagawavtt_phplistautoregistration_password" value="{UTAGAWAVTT_PHPLISTAUTOREGISTRATION_PASSWORD}"/></dd>
+		</dl>
+		<dl>
+			<dt>
+                <label for="utagawavtt_phplistautoregistration_cacheDir">{L_ACP_PHPLISTAUTOREGISTRATION_CACHEDIR}</label>
+                <br /><span>{L_ACP_PHPLISTAUTOREGISTRATION_CACHEDIR_DESC}</span>
+            </dt>
+			<dd><input type="text" class="text" name="utagawavtt_phplistautoregistration_cacheDir" value="{UTAGAWAVTT_PHPLISTAUTOREGISTRATION_CACHEDIR}"/></dd>
+		</dl>
+    </fieldset>
+
+	<fieldset>
+        <legend>{L_ACP_PHPLISTAUTOREGISTRATION_LISTS}</legend>
+		<dl>
+			<dt>
+                <label for="utagawavtt_phplistautoregistration_listIDs">{L_ACP_PHPLISTAUTOREGISTRATION_LISTIDS}</label>
+                <br /><span>{L_ACP_PHPLISTAUTOREGISTRATION_LISTIDS_DESC}</span>
+            </dt>
+			<dd>
+                <!-- IF .listsAvailable -->
+                <!-- BEGIN listsAvailable -->
+                    <div>
+                        <input type="checkbox" class="checkbox" name="utagawavtt_phplistautoregistration_listIDs[]" value="{listsAvailable.ID}" <!-- IF listsAvailable.CHECKED -->checked="checked"<!-- ENDIF --> />
+                        <span>{listsAvailable.NAME}</span>
+                    </div>
+                <!-- END listsAvailable -->
+                <!-- ELSE -->
+                    <span>{L_ACP_PHPLISTAUTOREGISTRATION_NEED_CONF}</span>
+                <!-- ENDIF -->
+            </dd>
+		</dl>
+	</fieldset>
+
+    <p class="submit-buttons">
+        <input class="button1" type="submit" id="submit" name="submit" value="{L_SUBMIT}" />&nbsp;
+        <input class="button2" type="reset" id="reset" name="reset" value="{L_RESET}" />
+    </p>
+
+    {S_FORM_TOKEN}
+</form>
+
+<!-- INCLUDE overall_footer.html -->

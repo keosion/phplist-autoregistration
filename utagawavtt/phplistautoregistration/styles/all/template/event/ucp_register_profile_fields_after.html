@@ -1,0 +1,19 @@
+
+<!-- IF .lists -->
+    <hr />
+
+    <dl>
+        <dt>
+            <label>{L_UCP_PHPLISTAUTOREGISTRATION_TITLE}</label>
+            <br /><span>{L_UCP_PHPLISTAUTOREGISTRATION_LISTS_TXT}</span>
+        </dt>
+        <dd>
+            <!-- BEGIN lists -->
+                <div>
+                    <input type="checkbox" class="checkbox" name="phplistautoregistration_registListIDs[]" value="{lists.ID}" <!-- IF lists.CHECKED -->checked="checked"<!-- ENDIF --> />
+                    <span>{lists.NAME}</span>
+                </div>
+            <!-- END lists -->
+        </dd>
+    </dl>
+<!-- ENDIF -->

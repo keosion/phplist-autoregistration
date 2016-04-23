@@ -1,0 +1,27 @@
+{
+	"name": "utagawavtt/phplistautoregistration",
+	"type": "phpbb-extension",
+	"description": "Automatically add user to phplist lists.",
+	"homepage": "https://github.com/keosion/phplist-autoregistration",
+	"version": "1.0.0",
+	"license": "GPL-3.0",
+	"authors": [
+		{
+			"name": "Jeremy Bouquain",
+			"email": "dev@utagawavtt.com",
+			"homepage": "http://www.utagawavtt.com",
+			"role": "Lead Developer"
+		}
+	],
+	"require": {
+		"php": ">=5.3.3",
+		"composer/installers": "~1.0",
+        "ext-curl": "*"
+	},
+	"extra": {
+		"display-name": "Phplist autoregistration",
+		"soft-require": {
+			"phpbb/phpbb": ">=3.1.6"
+		}
+	}
+}

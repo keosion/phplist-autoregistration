@@ -1,0 +1,38 @@
+<!-- INCLUDE ucp_header.html -->
+
+<h2>{L_UCP_PHPLISTAUTOREGISTRATION_TITLE}</h2>
+
+<form id="ucp_phplistautoregistration" method="post" action="{U_ACTION}">
+    <div class="panel">
+        <div class="inner">
+            <fieldset>
+                <dl>
+                    <dt>
+                        <label>{L_UCP_PHPLISTAUTOREGISTRATION_LISTS}</label>
+                        <br /><span>{L_UCP_PHPLISTAUTOREGISTRATION_LISTS_TXT}</span>
+                    </dt>
+                    <dd>
+                        <!-- IF .lists -->
+                            <!-- BEGIN lists -->
+                                <div>
+                                    <input type="checkbox" class="checkbox" name="phplistautoregistration_registListIDs[]" value="{lists.ID}" <!-- IF lists.CHECKED -->checked="checked"<!-- ENDIF --> />
+                                    <span>{lists.NAME}</span>
+                                </div>
+                            <!-- END lists -->
+                        <!-- ELSE -->
+                            <span>{L_UCP_PHPLISTAUTOREGISTRATION_NOT_REGISTERED}</span>
+                        <!-- ENDIF -->
+                    </dd>
+                </dl>
+            </fieldset>
+        </div>
+    </div>
+
+    <fieldset class="submit-buttons">
+        <input class="button1" type="submit" id="submit" name="submit" value="{L_SUBMIT}" />
+    </fieldset>
+
+    {S_FORM_TOKEN}
+</form>
+
+<!-- INCLUDE ucp_footer.html -->

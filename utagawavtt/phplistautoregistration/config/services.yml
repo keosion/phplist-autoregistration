@@ -1,0 +1,11 @@
+services:
+    utagawavtt.phplistautoregistration.listener:
+        class: utagawavtt\phplistautoregistration\event\listener
+        arguments:
+            - @user_loader
+            - @user
+            - @config
+            - @template
+            - @request
+        tags:
+            - { name: event.listener }
