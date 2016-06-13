@@ -10,7 +10,8 @@ namespace utagawavtt\phplistautoregistration\libraries;
 
  /**
  *
- * Source : https://github.com/michield/phplist-restapi-client
+ * Based on this work : https://github.com/michield/phplist-restapi-client
+ * and this work : https://github.com/phpList/phplist-plugin-restapi/blob/master/tests/phpunit/restapi.php
  *
  */
 
@@ -305,6 +306,38 @@ class phpListRESTApiClient
         );
         // Execute the api call
         $result = $this->callAPI('subscriberAdd', $post_params);
+
+        if (!isset($result->status) || $result->status !== 'success') {
+            return false;
+        }
+
+        if (isset($result->data) && isset($result->data->id) && !empty($result->data->id)) {
+            $subscriberId = $result->data->id;
+            return $subscriberId;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Update a subscriber.
+     *
+     * This is the main method to use to Update a subscriber. It will update email adress.
+     *
+     * @param int $subscriberId subscriber Id
+     * @param string $newEmailAddress email address of the subscriber to add
+     *
+     * @return int $subscriberId if updated, or false if failed
+     */
+    public function subscriberUpdate($subscriberId, $newEmailAddress)
+    {
+        $post_params = array(
+            'id' => $subscriberId,
+            'email' => $newEmailAddress,
+            'confirmed' => 1,
+            'htmlemail' => 1,
+        );
+        $result = $this->callAPI('subscriberUpdate', $post_params);
 
         if (!isset($result->status) || $result->status !== 'success') {
             return false;

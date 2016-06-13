@@ -57,6 +57,8 @@ class listener implements EventSubscriberInterface
         return array(
             'core.ucp_register_data_before' => 'ucp_register_data_before',
             'core.ucp_register_user_row_after' => 'ucp_register_user_row_after',
+            'core.ucp_profile_reg_details_sql_ary' => 'ucp_profile_reg_details_sql_ary',
+            'core.acp_users_overview_modify_data' => 'acp_users_overview_modify_data',
             'core.delete_user_before' => 'delete_user_before'
         );
     }
@@ -156,6 +158,71 @@ class listener implements EventSubscriberInterface
                     $phpList->listSubscriberAdd($listID, $subscriberID);
                 }
             }
+        }
+
+        $phpList->clearCookie();
+    }
+
+    /*
+     * ucp_profile_reg_details_sql_ary
+     *
+     * Automatically update user in phplist subscribers on email update by user
+     *
+     * args : data
+     *
+     */
+    public function ucp_profile_reg_details_sql_ary($event)
+    {
+        $this->user->add_lang_ext('utagawavtt/phplistautoregistration', 'common');
+
+        // import vars
+        $data = $event['data'];
+        $newEmailAddress = $data['email'];
+        $oldEmailAddress = $this->user->data['user_email'];
+
+        // configure and connect to the API
+        $phpList = new phpListRESTApiClient($this->apiURL, $this->login, $this->password);
+        $phpList->tmpPath = $this->cacheDir;
+        if (!$phpList->login()) {
+            trigger_error($this->user->lang('ACP_PHPLISTAUTOREGISTRATION_DELETE_ERROR'), E_USER_WARNING);
+        }
+
+        $subscriberID = $phpList->subscriberFindByEmail($oldEmailAddress);
+        if ($subscriberID !== false) {
+            $phpList->subscriberUpdate($subscriberID, $newEmailAddress);
+        }
+
+        $phpList->clearCookie();
+    }
+
+    /*
+     * acp_users_overview_modify_data
+     *
+     * Automatically update user in phplist subscribers on email update by admin
+     *
+     * args : data, user_row
+     *
+     */
+    public function acp_users_overview_modify_data($event)
+    {
+        $this->user->add_lang_ext('utagawavtt/phplistautoregistration', 'common');
+
+        // import vars
+        $data = $event['data'];
+        $user_row = $event['user_row'];
+        $newEmailAddress = $data['email'];
+        $oldEmailAddress = $user_row['user_email'];
+
+        // configure and connect to the API
+        $phpList = new phpListRESTApiClient($this->apiURL, $this->login, $this->password);
+        $phpList->tmpPath = $this->cacheDir;
+        if (!$phpList->login()) {
+            trigger_error($this->user->lang('ACP_PHPLISTAUTOREGISTRATION_DELETE_ERROR'), E_USER_WARNING);
+        }
+
+        $subscriberID = $phpList->subscriberFindByEmail($oldEmailAddress);
+        if ($subscriberID !== false) {
+            $phpList->subscriberUpdate($subscriberID, $newEmailAddress);
         }
 
         $phpList->clearCookie();
