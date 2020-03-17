@@ -42,15 +42,9 @@ class release_1_0_0 extends \phpbb\db\migration\migration
 					'modes'				=> array('settings'),
 				),
 			)),
-
 			array('module.add', array(
 				'ucp',
-                'UCP_PROFILE',
-				'UCP_PHPLISTAUTOREGISTRATION_TITLE'
-			)),
-			array('module.add', array(
-				'ucp',
-				'UCP_PHPLISTAUTOREGISTRATION_TITLE',
+				'UCP_PROFILE',
 				array(
 					'module_basename'	=> '\utagawavtt\phplistautoregistration\ucp\phplistautoregistration_ucp_module',
                     'modes'				=> array('settings'),

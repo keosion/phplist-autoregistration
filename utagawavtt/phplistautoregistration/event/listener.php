@@ -21,28 +21,35 @@ class listener implements EventSubscriberInterface
     /* @var \phpbb\request\request  */
 	protected $request;
 
+    /* @var \phpbb\db\driver\driver_interface  */
+	protected $db;
+
 	protected $apiURL;
 	protected $login;
 	protected $password;
 	protected $cacheDir;
 	protected $listIDs;
 
+	protected $attributeIdCache;
+
 	/**
 	* Constructor
 	*
-	* @param \phpbb\user_loader			$user_loader
-	* @param \phpbb\user        		$user
-	* @param \phpbb\config\config		$config
-	* @param \phpbb\template\template	$template
-	* @param \phpbb\request\request     $request
+	* @param \phpbb\user_loader                 $user_loader
+	* @param \phpbb\user                        $user
+	* @param \phpbb\config\config               $config
+	* @param \phpbb\template\template           $template
+	* @param \phpbb\request\request             $request
+	* @param \phpbb\db\driver\driver_interface  $db
 	*/
-	public function __construct(\phpbb\user_loader $user_loader, \phpbb\user $user, \phpbb\config\config $config, \phpbb\template\template $template, \phpbb\request\request $request)
+	public function __construct(\phpbb\user_loader $user_loader, \phpbb\user $user, \phpbb\config\config $config, \phpbb\template\template $template, \phpbb\request\request $request, \phpbb\db\driver\driver_interface $db)
 	{
 		$this->user_loader = $user_loader;
 		$this->user = $user;
         $this->config = $config;
         $this->template = $template;
         $this->request = $request;
+        $this->db = $db;
 
         // extension configuration
         $this->apiURL = html_entity_decode($this->config['utagawavtt_phplistautoregistration_apiUrl']);
@@ -50,6 +57,8 @@ class listener implements EventSubscriberInterface
         $this->password = $this->config['utagawavtt_phplistautoregistration_password'];
         $this->cacheDir = dirname(__FILE__) . '/../../../../' . $this->config['utagawavtt_phplistautoregistration_cacheDir'];
         $this->listIDs = explode(',', $this->config['utagawavtt_phplistautoregistration_listIDs']);
+
+        $this->attributeIdCache = [];
 	}
 
     public static function getSubscribedEvents()
@@ -132,6 +141,11 @@ class listener implements EventSubscriberInterface
         $user_row = $event['user_row'];
 
         $subscriberEmail = $user_row['user_email'];
+        $subscriberUsername = $user_row['username'];
+
+        if (!$submit) {
+            return;
+        }
 
         // configure and connect to the API
         $phpList = new phpListRESTApiClient($this->apiURL, $this->login, $this->password);
@@ -140,23 +154,24 @@ class listener implements EventSubscriberInterface
             return;                         // Maybe we should warn someone that things went bad
         }
 
-        if ($submit) {
-            // if the user is not yet a subscriber, add it
-            $subscriberID = $phpList->subscriberFindByEmail($subscriberEmail);
-            if ($subscriberID === false) {
-                $subscriberID = $phpList->subscriberAdd($subscriberEmail);
-            }
+        // if the user is not yet a subscriber, add it
+        $subscriberID = $phpList->subscriberFindByEmail($subscriberEmail);
+        if ($subscriberID === false) {
+            $subscriberID = $phpList->subscriberAdd($subscriberEmail);
+
             if ($subscriberID === false) {
                 $phpList->clearCookie();
                 return;
+            } else {
+                $this->_addUpdate_attributes($subscriberID, ['username' => $subscriberUsername]);
             }
+        }
 
-            $registListIDs = $this->request->variable('phplistautoregistration_registListIDs', array('' => 0));
-            // add the subscriber to lists
-            foreach ($this->listIDs as $listID) {
-                if (in_array($listID, $registListIDs)) {
-                    $phpList->listSubscriberAdd($listID, $subscriberID);
-                }
+        $registListIDs = $this->request->variable('phplistautoregistration_registListIDs', array('' => 0));
+        // add the subscriber to lists
+        foreach ($this->listIDs as $listID) {
+            if (in_array($listID, $registListIDs)) {
+                $phpList->listSubscriberAdd($listID, $subscriberID);
             }
         }
 
@@ -179,6 +194,7 @@ class listener implements EventSubscriberInterface
         $data = $event['data'];
         $newEmailAddress = $data['email'];
         $oldEmailAddress = $this->user->data['user_email'];
+        $newUsername = $data['username'];
 
         // configure and connect to the API
         $phpList = new phpListRESTApiClient($this->apiURL, $this->login, $this->password);
@@ -190,6 +206,7 @@ class listener implements EventSubscriberInterface
         $subscriberID = $phpList->subscriberFindByEmail($oldEmailAddress);
         if ($subscriberID !== false) {
             $phpList->subscriberUpdate($subscriberID, $newEmailAddress);
+            $this->_addUpdate_attributes($subscriberID, ['username' => $newUsername]);
         }
 
         $phpList->clearCookie();
@@ -212,6 +229,7 @@ class listener implements EventSubscriberInterface
         $user_row = $event['user_row'];
         $newEmailAddress = $data['email'];
         $oldEmailAddress = $user_row['user_email'];
+        $newUsername = $data['username'];
 
         // configure and connect to the API
         $phpList = new phpListRESTApiClient($this->apiURL, $this->login, $this->password);
@@ -223,6 +241,7 @@ class listener implements EventSubscriberInterface
         $subscriberID = $phpList->subscriberFindByEmail($oldEmailAddress);
         if ($subscriberID !== false) {
             $phpList->subscriberUpdate($subscriberID, $newEmailAddress);
+            $this->_addUpdate_attributes($subscriberID, ['username' => $newUsername]);
         }
 
         $phpList->clearCookie();
@@ -261,9 +280,71 @@ class listener implements EventSubscriberInterface
             $subscriberID = $phpList->subscriberFindByEmail($user_data['user_email']);
             if ($subscriberID !== false) {
                 $phpList->subscriberDelete($subscriberID);
+                $this->_remove_attributes($subscriberID);
             }
         }
 
         $phpList->clearCookie();
     }
+
+    /*
+     * _remove_attributes
+     *
+     * remove attribute in phplist table
+     *
+     * $subscriberID   integer
+     *
+     */
+    protected function _remove_attributes($subscriberID)
+    {
+        $query = "DELETE FROM phplist_user_user_attribute WHERE userid=$subscriberID";
+        $result = $this->db->sql_query($query);
+        $this->db->sql_freeresult($result);
+    }
+
+    /*
+     * _addUpdate_attributes
+     *
+     * add or update attributes in phplist table
+     *
+     * $subscriberID        integer
+     * $attributes          array('attributeName' => 'attibuteValue, ...)
+     *
+     */
+    protected function _addUpdate_attributes($subscriberID, $attributes)
+    {
+        foreach ($attributes as $attributeName => $attributeValue) {
+            $attributeId = $this->_getAttributeId($attributeName);
+
+            $query = "INSERT INTO phplist_user_user_attribute SET"
+                            . " attributeid=$attributeId,"
+                            . " userid=$subscriberID,"
+                            . " value=\"$attributeValue\""
+                            . " ON DUPLICATE KEY UPDATE value=\"$attributeValue\"";
+            $result = $this->db->sql_query($query);
+            $this->db->sql_freeresult($result);
+        }
+    }
+
+    /*
+     * _getAttributeId
+     *
+     * retreive attribute id given attribute name
+     *
+     * $attributeName       string
+     *
+     */
+    protected function _getAttributeId($attributeName)
+    {
+        if (isset($this->attributeIdCache[$attributeName])) {
+            return $this->attributeIdCache[$attributeName];
+        }
+        $query_attcheck = "SELECT id AS attr_id FROM phplist_user_attribute WHERE name='$attributeName'";
+        $result = $this->db->sql_query($query_attcheck);
+        $row = $this->db->sql_fetchrow($result);
+        $attributeIdCache[$attributeName] = !$row['attr_id'] ? false : $row['attr_id'];
+        $this->db->sql_freeresult($result);
+        return $attributeIdCache[$attributeName];
+    }
+
 }

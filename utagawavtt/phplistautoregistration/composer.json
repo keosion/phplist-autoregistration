@@ -1,15 +1,15 @@
 {
 	"name": "utagawavtt/phplistautoregistration",
 	"type": "phpbb-extension",
-	"description": "Automatically add user to phplist lists.",
+	"description": "Automatically add phpBB user to phplist lists.",
 	"homepage": "https://github.com/keosion/phplist-autoregistration",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"license": "GPL-3.0",
 	"authors": [
 		{
 			"name": "Jeremy Bouquain",
 			"email": "dev@utagawavtt.com",
-			"homepage": "http://www.utagawavtt.com",
+			"homepage": "https://www.utagawavtt.com",
 			"role": "Lead Developer"
 		}
 	],
