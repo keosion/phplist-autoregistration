@@ -56,7 +56,9 @@ class listener implements EventSubscriberInterface
         $this->login = $this->config['utagawavtt_phplistautoregistration_login'];
         $this->password = $this->config['utagawavtt_phplistautoregistration_password'];
         $this->cacheDir = dirname(__FILE__) . '/../../../../' . $this->config['utagawavtt_phplistautoregistration_cacheDir'];
-        $this->listIDs = explode(',', $this->config['utagawavtt_phplistautoregistration_listIDs']);
+        $listIDs = explode(',', $this->config['utagawavtt_phplistautoregistration_listIDs']);
+        $hiddenListIDs = explode(',', $this->config['utagawavtt_phplistautoregistration_hiddenListIDs']);
+        $this->allListIDs = array_merge($listIDs, $hiddenListIDs);
 
         $this->attributeIdCache = [];
 	}
@@ -168,9 +170,11 @@ class listener implements EventSubscriberInterface
         }
 
         $registListIDs = $this->request->variable('phplistautoregistration_registListIDs', array('' => 0));
+        $registHiddenListIDs =  explode(',', $this->config['utagawavtt_phplistautoregistration_hiddenListIDs']);
+        $registAllListIDs = array_merge($registListIDs, $registHiddenListIDs);
         // add the subscriber to lists
-        foreach ($this->listIDs as $listID) {
-            if (in_array($listID, $registListIDs)) {
+        foreach ($this->allListIDs as $listID) {
+            if (in_array($listID, $registAllListIDs)) {
                 $phpList->listSubscriberAdd($listID, $subscriberID);
             }
         }
@@ -206,6 +210,7 @@ class listener implements EventSubscriberInterface
         $subscriberID = $phpList->subscriberFindByEmail($oldEmailAddress);
         if ($subscriberID !== false) {
             $phpList->subscriberUpdate($subscriberID, $newEmailAddress);
+            $phpList->subscriberRemoveFromBlacklist($newEmailAddress);
             $this->_addUpdate_attributes($subscriberID, ['username' => $newUsername]);
         }
 
@@ -241,6 +246,7 @@ class listener implements EventSubscriberInterface
         $subscriberID = $phpList->subscriberFindByEmail($oldEmailAddress);
         if ($subscriberID !== false) {
             $phpList->subscriberUpdate($subscriberID, $newEmailAddress);
+            $phpList->subscriberRemoveFromBlacklist($newEmailAddress);
             $this->_addUpdate_attributes($subscriberID, ['username' => $newUsername]);
         }
 

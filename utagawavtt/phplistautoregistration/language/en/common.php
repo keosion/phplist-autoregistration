@@ -27,8 +27,10 @@ $lang = array_merge($lang, array(
 	'ACP_PHPLISTAUTOREGISTRATION_PASSWORD_DESC'		=> 'Password used to connect to the phplist API.',
 	'ACP_PHPLISTAUTOREGISTRATION_CACHEDIR'			=> 'Cookie temporary directory',
 	'ACP_PHPLISTAUTOREGISTRATION_CACHEDIR_DESC'		=> 'Cache directory relative to the phpBB forum root path. Default is \'cache\'.',
-	'ACP_PHPLISTAUTOREGISTRATION_LISTIDS'			=> 'Lists',
-	'ACP_PHPLISTAUTOREGISTRATION_LISTIDS_DESC'		=> 'Lists new users will be subscribed to.',
+	'ACP_PHPLISTAUTOREGISTRATION_LISTIDS'			=> 'Visible lists',
+	'ACP_PHPLISTAUTOREGISTRATION_LISTIDS_DESC'		=> 'Lists new users will be subscribed to if they accept.',
+	'ACP_PHPLISTAUTOREGISTRATION_HIDDENLISTIDS'		=> 'Hidden lists',
+	'ACP_PHPLISTAUTOREGISTRATION_HIDDENLISTIDS_DESC'=> 'Lists new users will be forced to subscribe to.',
 
     'ACP_PHPLISTAUTOREGISTRATION_NEED_CONF'         => 'API acces must be properly configured first.',
 

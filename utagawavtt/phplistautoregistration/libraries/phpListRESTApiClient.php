@@ -428,6 +428,24 @@ class phpListRESTApiClient
         }
     }
 
+    /**
+     * Remove subscriber email from blacklist
+     *
+     * @param string $emailAddress email address of the subscriber to remove from blacklist
+     *
+     * @return true if done, false if error
+     */
+    public function subscriberRemoveFromBlacklist($emailAddress)
+    {
+        $post_params = array(
+            'email' => $emailAddress,
+        );
+
+        $result = $this->callAPI('removeEmailFromBlacklist', $post_params);
+
+        return (isset($result->status) && $result->status === 'success');
+    }
+
      /**
       * Get the total number of subscribers.
       *

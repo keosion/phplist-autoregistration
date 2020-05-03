@@ -65,8 +65,10 @@ class phplistautoregistration_ucp_module
 			}
 
             $regLists = $request->variable('phplistautoregistration_registListIDs', array('' => 0));
-            $unRegLists = array_diff($listIDsAry, $regLists);
-            $this->_updateLists($subscriberId, $regLists, $unRegLists);
+            $regHiddenLists =  explode(',', $config['utagawavtt_phplistautoregistration_hiddenListIDs']);
+            $regAllLists = array_merge($regLists, $regHiddenLists);
+            $unRegLists = array_diff($listIDsAry, $regAllLists);
+            $this->_updateLists($subscriberId, $regAllLists, $unRegLists);
 
             $message = $user->lang['PROFILE_UPDATED']
                         .'<br /><br />'

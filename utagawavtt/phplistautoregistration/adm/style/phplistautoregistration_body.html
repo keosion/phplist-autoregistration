@@ -60,6 +60,25 @@
                 <!-- ENDIF -->
             </dd>
 		</dl>
+        <hr />
+		<dl>
+			<dt>
+                <label for="utagawavtt_phplistautoregistration_hiddenListIDs">{L_ACP_PHPLISTAUTOREGISTRATION_HIDDENLISTIDS}</label>
+                <br /><span>{L_ACP_PHPLISTAUTOREGISTRATION_HIDDENLISTIDS_DESC}</span>
+            </dt>
+			<dd>
+                <!-- IF .hiddenListsAvailable -->
+                <!-- BEGIN hiddenListsAvailable -->
+                    <div>
+                        <input type="checkbox" class="checkbox" name="utagawavtt_phplistautoregistration_hiddenListIDs[]" value="{hiddenListsAvailable.ID}" <!-- IF hiddenListsAvailable.CHECKED -->checked="checked"<!-- ENDIF --> />
+                        <span>{hiddenListsAvailable.NAME}</span>
+                    </div>
+                <!-- END hiddenListsAvailable -->
+                <!-- ELSE -->
+                    <span>{L_ACP_PHPLISTAUTOREGISTRATION_NEED_CONF}</span>
+                <!-- ENDIF -->
+            </dd>
+		</dl>
 	</fieldset>
 
     <p class="submit-buttons">
