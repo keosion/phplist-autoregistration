@@ -36,7 +36,9 @@ $lang = array_merge($lang, array(
 
 	'ACP_PHPLISTAUTOREGISTRATION_SETTING_SAVED'     => 'Tests success. Settings have been saved.',
 
-    'ACP_PHPLISTAUTOREGISTRATION_DELETE_ERROR'      => 'Erreur lors de la désinscription à phplist - Connexion à l\'API REST impossible.',
+    'ACP_PHPLISTAUTOREGISTRATION_DELETE_ERROR'      => 'Error - Cannot connect to phplist REST API.',
+    'ACP_PHPLISTAUTOREGISTRATION_UPDATE_ERROR'      => 'Error - Cannot connect to phplist REST API.',
+    'ACP_PHPLISTAUTOREGISTRATION_EMAIL_ERROR'       => 'Error - Cannot connect to phplist REST API.',
 
     'ACP_PHPLISTAUTOREGISTRATION_LOGIN_ERROR'       => 'Unable to connect to phpList REST API.',
     'ACP_PHPLISTAUTOREGISTRATION_CONNECT_ERROR'     => 'Request to phpList REST API failed.',

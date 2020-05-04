@@ -446,6 +446,24 @@ class phpListRESTApiClient
         return (isset($result->status) && $result->status === 'success');
     }
 
+    /**
+     * Check if subscriber email is blacklisted
+     *
+     * @param string $emailAddress email address of the subscriber to remove from blacklist
+     *
+     * @return true if blacklisted, false if not or on error
+     */
+    public function subscriberIsBlacklisted($emailAddress)
+    {
+        $post_params = array(
+            'email' => $emailAddress,
+        );
+
+        $result = $this->callAPI('blacklistedEmailInfo', $post_params);
+
+        return (isset($result->status) && $result->status === 'success' && $result->type === "blacklist");
+    }
+
      /**
       * Get the total number of subscribers.
       *

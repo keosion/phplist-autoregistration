@@ -70,7 +70,8 @@ class listener implements EventSubscriberInterface
             'core.ucp_register_user_row_after' => 'ucp_register_user_row_after',
             'core.ucp_profile_reg_details_sql_ary' => 'ucp_profile_reg_details_sql_ary',
             'core.acp_users_overview_modify_data' => 'acp_users_overview_modify_data',
-            'core.delete_user_before' => 'delete_user_before'
+            'core.delete_user_before' => 'delete_user_before',
+            'core.notification_manager_add_notifications' => 'notification_manager_add_notifications'
         );
     }
 
@@ -204,7 +205,7 @@ class listener implements EventSubscriberInterface
         $phpList = new phpListRESTApiClient($this->apiURL, $this->login, $this->password);
         $phpList->tmpPath = $this->cacheDir;
         if (!$phpList->login()) {
-            trigger_error($this->user->lang('ACP_PHPLISTAUTOREGISTRATION_DELETE_ERROR'), E_USER_WARNING);
+            trigger_error($this->user->lang('ACP_PHPLISTAUTOREGISTRATION_UPDATE_ERROR'), E_USER_WARNING);
         }
 
         $subscriberID = $phpList->subscriberFindByEmail($oldEmailAddress);
@@ -240,7 +241,7 @@ class listener implements EventSubscriberInterface
         $phpList = new phpListRESTApiClient($this->apiURL, $this->login, $this->password);
         $phpList->tmpPath = $this->cacheDir;
         if (!$phpList->login()) {
-            trigger_error($this->user->lang('ACP_PHPLISTAUTOREGISTRATION_DELETE_ERROR'), E_USER_WARNING);
+            trigger_error($this->user->lang('ACP_PHPLISTAUTOREGISTRATION_UPDATE_ERROR'), E_USER_WARNING);
         }
 
         $subscriberID = $phpList->subscriberFindByEmail($oldEmailAddress);
@@ -291,6 +292,67 @@ class listener implements EventSubscriberInterface
         }
 
         $phpList->clearCookie();
+    }
+
+    /*
+     * notification_manager_add_notifications
+     *
+     * On each email notification to be sent, cancel if email adress is blacklisted
+     *
+     * args : notification_type_name, data, options, notify_users
+     *
+     */
+    public function notification_manager_add_notifications($event)
+    {
+        $this->user->add_lang_ext('utagawavtt/phplistautoregistration', 'common');
+
+        // import vars
+        $users = $event['notify_users'];
+
+        if (!is_array($users) || empty($users)) {
+            return;
+        }
+
+        // configure and connect to the API
+        $phpList = new phpListRESTApiClient($this->apiURL, $this->login, $this->password);
+        $phpList->tmpPath = $this->cacheDir;
+        if (!$phpList->login()) {
+            trigger_error($this->user->lang('ACP_PHPLISTAUTOREGISTRATION_EMAIL_ERROR'), E_USER_WARNING);
+        }
+
+        // filter users
+        foreach ($users as $userId => $userNotifs) {
+            // if user doesn't want to receive email, skip
+            if (!in_array('notification.method.email', $userNotifs)) {
+                continue;
+            }
+            // load user
+            $this->user_loader->load_users([$userId]);
+            $user_data = $this->user_loader->get_user($userId);
+            if ($user_data['user_id'] != $userId) {
+                continue;
+            }
+            // check blacklist
+            $isBlacklisted = $phpList->subscriberIsBlacklisted($user_data['user_email']);
+            if (!$isBlacklisted) {
+                continue;
+            }
+            // user is blacklisted and want only emails -> remove notification
+            if (count($userNotifs) === 1) {
+                unset($users[$userId]);
+                continue;
+            }
+            // user is blacklisted and want other notifications -> remove email notification only
+            $userNotifsFiltered = array_filter($userNotifs, function ($userNotif) {
+                return $userNotif !== 'notification.method.email';
+            });
+            $users[$userId] = $userNotifsFiltered;
+        }
+
+        $phpList->clearCookie();
+
+        // export vars
+        $event['notify_users'] = $users;
     }
 
     /*
